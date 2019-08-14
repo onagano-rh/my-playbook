@@ -1,0 +1,30 @@
+- name: my playbook
+  hosts: localhost
+  gather_facts: false
+  roles:
+    - role: echor2
+    - role: echor
+  pre_tasks:
+    - name: a pre task
+      debug:
+        msg: foo
+  tasks:
+    - name: whoami
+      shell: whoami
+      notify:
+        - handler aaa
+      register: whoiam
+    - name: the first task
+      debug:
+        var: whoiam
+    - name: the second task
+      debug:
+        msg: hoge hoge
+  handlers:
+    - name: handler aaa
+      debug:
+        msg: this is a handler in site.yml
+  post_tasks:
+    - name: a post task
+      debug:
+        msg: bar

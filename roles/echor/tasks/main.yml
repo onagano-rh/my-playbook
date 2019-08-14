@@ -1,0 +1,9 @@
+---
+# tasks file for roles/echor
+- name: the first echor task
+  debug:
+    msg: this is echor task
+- name: date command
+  command: date --iso-8601
+  notify:
+    - an echor handler

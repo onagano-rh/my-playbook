@@ -1,0 +1,5 @@
+---
+# handlers file for roles/echor
+- name: an echor handler
+  debug:
+    msg: buzz

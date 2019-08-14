@@ -1,0 +1,7 @@
+---
+# tasks file for roles/echor2
+- name: an echor2 task
+  debug:
+    msg: foooo
+- name: sleeping
+  command: sleep 5
