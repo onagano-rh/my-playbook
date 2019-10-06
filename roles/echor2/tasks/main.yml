@@ -5,3 +5,5 @@
     msg: foooo
 - name: sleeping
   command: sleep 5
+  notify:
+    - handler bbb

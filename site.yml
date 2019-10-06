@@ -24,6 +24,9 @@
     - name: handler aaa
       debug:
         msg: this is a handler in site.yml
+    - name: handler bbb
+      debug:
+        msg: this is a second handler in site.yml
   post_tasks:
     - name: a post task
       debug:
