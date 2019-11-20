@@ -1,0 +1,50 @@
+- name: Create a new virtual machine
+  hosts: localhost
+  become: True # To check the root directory, or use "-b".
+  gather_facts: False
+  vars:
+    vm_name: testvm
+    os_version: centos-7.7
+    os_variant: centos7.0 # From `osinfo-query os`
+    disk_size: 10G
+    cpus: 2
+    memory: 2048
+  tasks:
+    - name: Create a custom image from the pre-install image
+      command: >-
+        virt-builder {{ os_version }}
+        --format qcow2
+        --output /var/lib/libvirt/images/{{ vm_name }}.qcow2
+        --size {{ disk_size }}
+        --hostname {{ vm_name }}.example.com
+        --root-password password:'RedHat1!'
+      register: results
+    - debug:
+        var: results.stdout_lines
+    - name: Install the created image
+      command: >-
+        virt-install --import
+        --name {{ vm_name }}
+        --vcpus {{ cpus }}
+        --memory {{ memory }}
+        --disk path=/var/lib/libvirt/images/{{ vm_name }}.qcow2,format=qcow2,bus=virtio
+        --network bridge=virbr0
+        --os-variant {{ os_variant }}
+        --noautoconsole
+        --noreboot
+      register: results
+    - debug:
+        var: results.stdout_lines
+    - debug:
+        msg: |
+          After the installation:
+            sudo virsh list --all
+            sudo virsh start {{ vm_name }}
+            sudo virsh net-dhcp-leases default
+            dig @192.168.122.1 {{ vm_name }}
+            ssh ...
+            sudo virsh shutdown {{ vm_name }}
+
+          How to delete:
+            sudo virsh undefine {{ vm_name }}
+            sudo rm /var/lib/libvirt/images/{{ vm_name }}.qcow2
