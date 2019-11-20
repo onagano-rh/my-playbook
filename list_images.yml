@@ -1,0 +1,18 @@
+- name: List available virtual machine images
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    # Files in /etc/xdg/virt-builder/repos.d/ are used.
+    # Get RHEL ones from http://file.rdu.redhat.com/~rjones/builder/index.asc
+    # if you are in the Red Hat VPN.
+    - name: List VM images
+      command: virt-builder --list
+      register: images
+    - debug:
+        var: images.stdout_lines
+    - name: Print cached images
+      shell: virt-builder --print-cache | grep cached
+      ignore_errors: yes
+      register: cached_images
+    - debug:
+        var: cached_images.stdout_lines
