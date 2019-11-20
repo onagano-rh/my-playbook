@@ -1,5 +1,6 @@
 - name: List available virtual machine images
   hosts: localhost
+  become: true # To check the root directory, or use "-b".
   gather_facts: false
   tasks:
     # Files in /etc/xdg/virt-builder/repos.d/ are used.
@@ -8,11 +9,13 @@
     - name: List VM images
       command: virt-builder --list
       register: images
+      changed_when: no
     - debug:
         var: images.stdout_lines
     - name: Print cached images
       shell: virt-builder --print-cache | grep cached
       ignore_errors: yes
+      changed_when: no
       register: cached_images
     - debug:
         var: cached_images.stdout_lines
