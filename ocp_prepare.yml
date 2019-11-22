@@ -1,0 +1,56 @@
+- name: Preparation for OCP nodes
+  hosts: ocp_all
+  become: True
+  gather_facts: False
+  vars:
+    subscription_username: AAAA
+    subscription_password: BBBB
+    subscription_pool_id: CCCC
+  tasks:
+    - name: Attach subscription
+      redhat_subscription:
+        state: present
+        username: "{{ subscription_username }}"
+        password: "{{ subscription_password }}"
+        pool_ids:
+          - "{{ subscription_pool_id }}"
+    - name: Disable all subscribed repositories
+      command: >-
+        subscription-manager repos --disable=*
+    - name: Disable other default repositories
+      replace:
+        path: /etc/yum.repos.d/download.devel.redhat.com.repo
+        regexp: '^enabled=1'
+        replace: enabled=0
+    - name: Enable repositories required by OCP 3.11
+      command: >-
+        subscription-manager repos
+        --enable="rhel-7-server-rpms"
+        --enable="rhel-7-server-extras-rpms"
+        --enable="rhel-7-server-ose-3.11-rpms"
+        --enable="rhel-7-server-ansible-2.6-rpms"
+    - name: Install required packages
+      yum:
+        name: "{{ packages }}"
+      vars:
+        packages:
+          - wget
+          - git
+          - net-tools
+          - bind-utils
+          - yum-utils
+          - iptables-services
+          - bridge-utils
+          - bash-completion
+          - kexec-tools
+          - sos
+          - psacct
+          - docker
+    - name: Yum update
+      yum:
+        name: '*'
+        state: latest
+    - name: Ensure Docker daemon is enabled
+      service:
+        name: docker
+        enabled: True
